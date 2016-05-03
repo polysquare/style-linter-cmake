@@ -1,0 +1,33 @@
+[settings]
+
+
+[requires]
+    tooling-cmake-util/master.Y.Z
+    tooling-find-pkg-util/master.Y.Z
+
+[options]
+
+
+[full_settings]
+    arch=x86_64
+    build_type=Release
+    compiler=clang
+    compiler.libcxx=libc++
+    compiler.version=3.9
+    os=Macos
+
+[full_requires]
+    cmake-call-function/master@smspillaz/cmake-call-function:ee2ad17a379be1128ab0d41c0b19e627145863c6
+    cmake-forward-arguments/master@smspillaz/cmake-forward-arguments:ee2ad17a379be1128ab0d41c0b19e627145863c6
+    cmake-forward-cache/master@smspillaz/cmake-forward-cache:ee2ad17a379be1128ab0d41c0b19e627145863c6
+    cmake-header-language/master@smspillaz/cmake-header-language:e09d4fb919d2bffe5efcd39bec4d072256962f36
+    cmake-include-guard/master@smspillaz/cmake-include-guard:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    cmake-include-guard/master@smspillaz/cmake-include-guard:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    cmake-opt-arg-parsing/master@smspillaz/cmake-opt-arg-parsing:ee2ad17a379be1128ab0d41c0b19e627145863c6
+    cmake-spacify-list/master@smspillaz/cmake-spacify-list:9970211680daad023201f3b9d3c6ddd11e12a576
+    cmake-unit/master@smspillaz/cmake-unit:74d8060bcdc31b40de88d2a1729d017b3cf8daf8
+    cmake-unit/master@smspillaz/cmake-unit:74d8060bcdc31b40de88d2a1729d017b3cf8daf8
+    tooling-cmake-util/master@smspillaz/tooling-cmake-util:e9283872d0d8f6db19fc9b2e67c17e7a702828c7
+    tooling-find-pkg-util/master@smspillaz/tooling-find-pkg-util:e09d4fb919d2bffe5efcd39bec4d072256962f36
+
+[full_options]
