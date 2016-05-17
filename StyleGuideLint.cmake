@@ -8,6 +8,12 @@ include (CMakeParseArguments)
 include ("cmake/tooling-cmake-util/PolysquareToolingUtil")
 
 set (_STYLE_GUIDE_LINT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set (_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS
+     "${CMAKE_BINARY_DIR}/style_guide_linter/technical_terms")
+set (_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_DIR
+     "${CMAKE_BINARY_DIR}/style_guide_linter/cache")
+set (_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_STAMP
+     "${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_DIR}/generated.stamp")
 
 macro (style_guide_lint_validate CONTINUE)
 
@@ -41,10 +47,9 @@ endmacro ()
 
 function (_style_guide_lint_get_commandline COMMANDLINE_RETURN)
 
-    set (CURRENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
     set (STYLE_GUIDE_LINT_COMMON_OPTIONS
-         "--spellcheck-cache=${CURRENT_BINARY_DIR}/style_guide_linter_cache"
-         "--log-technical-terms-to=${CURRENT_BINARY_DIR}/technical_terms")
+         "--spellcheck-cache=${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_DIR}"
+         "--log-technical-terms-to=${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}")
 
     set (COMMANDLINE_OPTION_ARGS WARN_ONLY)
     set (COMMANDLINE_MULTIVAR_ARGS SOURCES
@@ -92,10 +97,9 @@ endfunction ()
 
 function (_style_guide_lint_get_spelling_commandline COMMANDLINE_RETURN)
 
-    set (CURRENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
     set (SPELLING_COMMON_OPTIONS
-         "--spellcheck-cache=${CURRENT_BINARY_DIR}/style_guide_linter_cache"
-         "--technical-terms=${CURRENT_BINARY_DIR}/technical_terms")
+         "--spellcheck-cache=${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_DIR}"
+         "--technical-terms=${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}")
 
     set (COMMANDLINE_OPTION_ARGS WARN_ONLY)
     set (COMMANDLINE_MULTIVAR_ARGS SOURCES)
@@ -165,6 +169,28 @@ function (_style_guide_lint_get_markdownlint_commandline COMMANDLINE_RETURN)
 
 endfunction ()
 
+function (_style_guide_lint_enable_caches_on_checks)
+
+    if (NOT TARGET "spellcheck-cache")
+
+        set (STAMPFILE "${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_STAMP}")
+        add_custom_command (OUTPUT "${STAMPFILE}"
+                            COMMAND "${STYLE_GUIDE_LINT_POP_CACHE_EXECUTABLE}"
+                                    "${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_DIR}"
+                                    --technical-terms
+                                    "${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}"
+                            COMMAND "${CMAKE_COMMAND}" -E touch "${STAMPFILE}"
+                            DEPENDS "${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}"
+                            WORKING_DIRECTORY
+                            "${CMAKE_SOURCE_DIR}"
+                            COMMENT "Populating spellcheck cache")
+        add_custom_target ("spellcheck-cache"
+                           SOURCES "${STAMPFILE}")
+
+    endif ()
+
+endfunction ()
+
 function (_style_guide_lint_check_each_source TARGET)
 
     set (ADD_NORMAL_CHECK_OPTION_ARGS WARN_ONLY)
@@ -225,9 +251,13 @@ function (_style_guide_lint_spellcheck_each_source TARGET)
                              FORWARD_OPTIONS
                              OPTION_ARGS WARN_ONLY)
 
+    # Enable caching and add the cache-generating target to DEPENDS
+    _style_guide_lint_enable_caches_on_checks ()
+
     # Now run the tool on the source, passing everything after DEPENDS
     list (APPEND ADD_CHECKS_DEPENDS  # NOLINT:unused/var_in_func
-          "${CMAKE_CURRENT_BINARY_DIR}/technical_terms")
+          "${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}"
+          "${_STYLE_GUIDE_LINT_SPELLCHECK_CACHE_STAMP}")
     cmake_forward_arguments (ADD_CHECKS
                              RUN_TOOL_ON_SOURCE_FORWARD
                              MULTIVAR_ARGS DEPENDS)
@@ -315,7 +345,7 @@ function (style_guide_lint_create_global_spelling_check TARGET)
 
     set (STAMPFILE "${CMAKE_CURRENT_BINARY_DIR}/code-spelling.stamp")
     add_custom_command (OUTPUT "${STAMPFILE}"
-                               "${CMAKE_CURRENT_BINARY_DIR}/technical_terms"
+                               "${_STYLE_GUIDE_LINT_SPELLCHECK_TECH_TERMS}"
                         COMMAND ${STYLE_GUIDE_LINT_COMMAND}
                         COMMAND "${CMAKE_COMMAND}" -E touch "${STAMPFILE}"
                         DEPENDS
