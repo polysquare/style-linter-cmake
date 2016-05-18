@@ -54,8 +54,9 @@ if (NOT RESULT EQUAL 0)
     message ("${ERROR}")
     if (NOT WARN_ONLY)
         set (MESSAGE
-             "${STYLE_GUIDE_LINT_EXECUTABLE} found issues with ${SOURCES} "
-             "exiting with {RESULT}")
+             "${STYLE_GUIDE_LINT_EXECUTABLE} found issues with ${SOURCES} ")
+        set (MESSAGE "${MESSAGE} exited with ${RESULT}")
+        message (FATAL_ERROR "${MESSAGE}")
     endif ()
 
 endif ()
