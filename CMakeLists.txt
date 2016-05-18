@@ -12,8 +12,7 @@ set (CMAKE_MODULE_PATH
 
 cmake_minimum_required (VERSION 2.8)
 
-include ("cmake/cmake-unit/CMakeUnitRunner")
-include ("cmake/cmake-unit/CMakeUnit")
+include ("cmake/cmake-module-common/Common")
 include (StyleGuideLint)
 
 if (NOT CMAKE_SCRIPT_MODE_FILE)
@@ -36,20 +35,9 @@ set (CMAKE_FILES
      "${_CUR_LIST_DIR}/FindPSQGENERICLINTER.cmake"
      "${_CUR_LIST_DIR}/FindMARKDOWNLINT.cmake")
 set (MARKDOWN_FILES
-     "${CMAKE_CURRENT_LIST_DIR}/LICENSE"
+     "${CMAKE_CURRENT_LIST_DIR}/LICENCE.md"
      "${CMAKE_CURRENT_LIST_DIR}/README.md")
 
-cmake_unit_init (NAMESPACE style_guide_lint
-                 COVERAGE_FILES ${CMAKE_FILES})
-
-style_guide_lint_sources (styleguidelint SOURCES ${CMAKE_FILES})
-style_guide_lint_spellcheck_sources (documentation-spelling
-                                     SOURCES ${MARKDOWN_FILES})
-style_guide_lint_markdownlint_sources (markdownlint
-                                       SOURCES ${MARKDOWN_FILES})
-style_guide_lint_create_global_spelling_check (spelling WARN_ONLY)
-
-add_custom_target (analysis ALL DEPENDS styleguidelint
-                                        spelling
-                                        documentation-spelling
-                                        markdownlint)
+cmake_module_add_common_targets (NAMESPACE "style_guide_lint"
+                                 CMAKE_FILES ${CMAKE_FILES}
+                                 DOCUMENTATION_FILES ${MARKDOWN_FILES})
